@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace SessionMan.Api.DTO.Client
+namespace SessionMan.DataAccess.DataTransfer.Client
 {
-    public record ClientUpdateInput
+    public record ClientRecord :AuditBaseRecord
     {
+        public Guid Id { get; set; }
+        
         [Required]
         [MinLength(2)]
         [MaxLength(50)]
@@ -13,7 +16,11 @@ namespace SessionMan.Api.DTO.Client
         [MinLength(2)]
         [MaxLength(50)]
         public string LastName { get; set; }
-
+        
+        [Required]
+        [EmailAddress]
+        public string EmailAddress { get; set; }
+        
         [Required]
         [Phone]
         public string ContactNumber { get; set; }

@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 
-namespace SessionMan.Api.Models
+namespace SessionMan.DataAccess.Models
 {
     public class Booking : AuditBase
     {

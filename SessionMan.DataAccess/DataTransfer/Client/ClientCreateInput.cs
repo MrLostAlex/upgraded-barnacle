@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace SessionMan.Api.DTO.Client
+namespace SessionMan.DataAccess.DataTransfer.Client
 {
     public record ClientCreateInput
     {
@@ -21,5 +22,7 @@ namespace SessionMan.Api.DTO.Client
         [Required]
         [Phone]
         public string ContactNumber { get; set; }
+        
+        public Guid CreatorId { get; set; } = default;
     }
 }

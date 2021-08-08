@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SessionMan.Api.Extensions;
+using SessionMan.DataAccess;
 
 namespace SessionMan.Api
 {
@@ -28,7 +30,17 @@ namespace SessionMan.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMySqlServer(Configuration);
-            services.AddControllers();
+            
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            
+            services.AddMyScopedServices();
+
+            services.AddMediatR(typeof(SessionManMediatREntrypoint).Assembly);
+            
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+            });;
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SessionMan.Api", Version = "v1"});

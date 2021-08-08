@@ -10,8 +10,8 @@ using SessionMan.DataAccess.Data;
 namespace SessionMan.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210731090611_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210801062746_UpdateFieldsForAudit")]
+    partial class UpdateFieldsForAudit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,8 +33,8 @@ namespace SessionMan.Api.Migrations
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("datetimeoffset");
@@ -45,8 +45,8 @@ namespace SessionMan.Api.Migrations
                     b.Property<DateTimeOffset>("UpdateTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -67,8 +67,8 @@ namespace SessionMan.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("datetimeoffset");
@@ -90,8 +90,8 @@ namespace SessionMan.Api.Migrations
                     b.Property<DateTimeOffset>("UpdateTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -104,8 +104,8 @@ namespace SessionMan.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("datetimeoffset");
@@ -128,8 +128,8 @@ namespace SessionMan.Api.Migrations
                     b.Property<DateTimeOffset>("UpdateTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

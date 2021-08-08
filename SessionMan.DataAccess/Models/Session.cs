@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace SessionMan.Api.Models
+namespace SessionMan.DataAccess.Models
 {
     public class Session : AuditBase
     {

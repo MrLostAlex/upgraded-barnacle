@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace SessionMan.Api.DTO.Client
+namespace SessionMan.DataAccess.DataTransfer.Client
 {
     public record ClientUpsertOutput : AuditBaseRecord
     {
+        public Guid Id { get; set; }
+
         [Required]
         [MinLength(2)]
         [MaxLength(50)]

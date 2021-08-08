@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace SessionMan.Api.Models
+namespace SessionMan.DataAccess.Models
 {
     public class AuditBase
     {
         public DateTimeOffset CreatedTime { get; set; }
-        public Guid CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
         public DateTimeOffset UpdateTime { get; set; }
-        public Guid UpdatedBy { get; set; }
+        public string UpdatedBy { get; set; }
     }
 }

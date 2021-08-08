@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace SessionMan.Api.DTO.Client
+namespace SessionMan.DataAccess.Models
 {
-    public record ClientRecord :AuditBaseRecord
+    public class Client : AuditBase
     {
+        [Key]
+        public Guid Id { get; set; }
+        
         [Required]
         [MinLength(2)]
         [MaxLength(50)]
@@ -22,7 +26,7 @@ namespace SessionMan.Api.DTO.Client
         [Required]
         [Phone]
         public string ContactNumber { get; set; }
-        
-        //public List<BookingRecord> Bookings { get; set; }
+
+        public List<Booking> Bookings { get; set; }
     }
 }

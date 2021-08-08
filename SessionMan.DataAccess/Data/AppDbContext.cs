@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SessionMan.Api.Models;
+using SessionMan.DataAccess.Models;
 
-namespace SessionMan.Api.Data
+namespace SessionMan.DataAccess.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions options) : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
