@@ -34,7 +34,7 @@ namespace SessionMan.Api.Utilities
                 response.ContentType = "application/json";
                 ErrorRecord errorRecord;
                 _logger.LogError($"An exception occured. Exception Message: {error.Message}");
-                _logger.LogDebug(JsonConvert.SerializeObject(error));
+                
                 switch(error)
                 {
                     case BadRequestException badRequestException:
@@ -59,6 +59,7 @@ namespace SessionMan.Api.Utilities
                 }
 
                 string result = JsonConvert.SerializeObject(errorRecord);
+                _logger.LogDebug(result);
                 await response.WriteAsync(result);
             }
         }

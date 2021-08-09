@@ -96,12 +96,13 @@ namespace SessionMan.Api.Controllers
         
         [HttpDelete]
         [Route("{clientId:guid}")]
-        public async Task DeleteClient(Guid clientId, CancellationToken cancellationToken)
+        public async Task<NoContentResult> DeleteClient(Guid clientId, CancellationToken cancellationToken)
         {
             try
             {
                 _logger.LogInformation($"Entered method {nameof(DeleteClient)}.");
                 await _mediator.Send(new DeleteClientCommand(clientId), cancellationToken);
+                return NoContent();
             }
             finally
             {

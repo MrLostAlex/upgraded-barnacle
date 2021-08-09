@@ -22,7 +22,7 @@ namespace SessionMan.DataAccess.Handlers
         
         public async Task<List<SessionRecord>> Handle(GetSessionListQuery request, CancellationToken cancellationToken)
         {
-            var sessions = await _sessionRepository.GetAllSessions();
+            var sessions = await _sessionRepository.GetAllSessions(cancellationToken);
             var sessionRecordsList = _mapper.Map<List<SessionRecord>>(sessions);
             return sessionRecordsList;
         }

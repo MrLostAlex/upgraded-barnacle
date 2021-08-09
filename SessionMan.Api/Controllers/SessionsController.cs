@@ -46,12 +46,22 @@ namespace SessionMan.Api.Controllers
             }
         }
 
-        // // GET: api/Sessions/5
-        // [HttpGet("{id}", Name = "Get")]
-        // public string Get(int id)
-        // {
-        //     return "value";
-        // }
+        // GET: api/Sessions/5
+        [HttpGet("{sessionId:guid}")]
+        public async Task<SessionRecord> GetSessionById(Guid sessionId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                _logger.LogInformation($"Entered method {nameof(GetSessionById)}.");
+                SessionRecord sessionRecord = await _mediator.Send(new GetSessionByIdQuery(sessionId), cancellationToken);
+
+                return sessionRecord;
+            }
+            finally
+            {
+                _logger.LogInformation($"Exit method {nameof(GetSessionById)}.");
+            }
+        }
 
         // POST: api/Sessions
         [HttpPost]
@@ -72,14 +82,24 @@ namespace SessionMan.Api.Controllers
 
         // // PUT: api/Sessions/5
         // [HttpPut("{id}")]
-        // public void Put(int id, [FromBody] string value)
+        // public async Task<SessionUpsertOutput> UpdateSession(int id, [FromBody] string value)
         // {
         // }
-        //
-        // // DELETE: api/Sessions/5
-        // [HttpDelete("{id}")]
-        // public void Delete(int id)
-        // {
-        // }
+        
+        // DELETE: api/Sessions/5
+        [HttpDelete("{sessionId:guid}")]
+        public async Task<NoContentResult> DeleteSession(Guid sessionId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                _logger.LogInformation($"Entered method {nameof(DeleteSession)}.");
+                await _mediator.Send(new DeleteSessionCommand(sessionId), cancellationToken);
+                return NoContent();
+            }
+            finally
+            {
+                _logger.LogInformation($"Exit method {nameof(DeleteSession)}.");
+            }
+        }
     }
 }

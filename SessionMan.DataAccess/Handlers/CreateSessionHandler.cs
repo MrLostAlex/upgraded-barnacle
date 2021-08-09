@@ -31,7 +31,7 @@ namespace SessionMan.DataAccess.Handlers
             session.CreatedTime = DateTimeOffset.UtcNow;
             session.UpdatedBy = session.CreatedBy;
             session.UpdateTime = session.CreatedTime;
-            Session sessionCreated = await _sessionRepository.CreateSession(session);
+            Session sessionCreated = await _sessionRepository.CreateSession(session, cancellationToken);
             var sessionRecord = _mapper.Map<SessionUpsertOutput>(sessionCreated);
             return sessionRecord;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using SessionMan.DataAccess.Data;
 using SessionMan.DataAccess.DataTransfer.Session;
 using SessionMan.DataAccess.Models;
 using SessionMan.DataAccess.Repository.IRepository;
+using SessionMan.Shared.Helpers;
 
 namespace SessionMan.DataAccess.Repository
 {
@@ -26,14 +28,14 @@ namespace SessionMan.DataAccess.Repository
             _logger = logger;
         }
 
-        public async Task<Session> CreateSession(Session sessionCreate)
+        public async Task<Session> CreateSession(Session sessionCreate, CancellationToken cancellationToken)
         {
             try
             {
                 _logger.LogInformation($"Entered method {nameof(CreateSession)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                await dbContext.Sessions.AddAsync(sessionCreate);
-                await dbContext.SaveChangesAsync();
+                await dbContext.Sessions.AddAsync(sessionCreate, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
                 return sessionCreate;
             }
             finally
@@ -42,23 +44,48 @@ namespace SessionMan.DataAccess.Repository
             }
         }
 
-        public async Task<Session> UpdateSession(Session sessionUpdate)
+        public async Task<Session> UpdateSession(Session sessionUpdate, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Entered method {nameof(UpdateSession)}.");
+                await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
+                dbContext.Sessions.Update(sessionUpdate);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                return sessionUpdate;
+            }
+            finally
+            {
+                _logger.LogInformation($"Exit method {nameof(UpdateSession)}.");
+            }
         }
 
-        public async Task DeleteSession(Guid sessionId)
+        public async Task DeleteSession(Guid sessionId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Entered method {nameof(DeleteSession)}.");
+                await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
+                Session sessionToDelete = await dbContext.Sessions.FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
+                if (sessionToDelete == null) throw new InvalidDataStateException("Delete Failed", $"Unable to delete session. Session Id {sessionId} not found.");
+                dbContext.Sessions.Remove(sessionToDelete);
+                int result = await dbContext.SaveChangesAsync(cancellationToken);
+                if(result > 0) return;
+                throw new InvalidDataStateException("Delete Failed", $"Unable to delete Session Id {sessionId}.");
+            }
+            finally
+            {
+                _logger.LogInformation($"Exit method {nameof(DeleteSession)}.");
+            }
         }
 
-        public async Task<List<Session>> GetAllSessions()
+        public async Task<List<Session>> GetAllSessions(CancellationToken cancellationToken)
         {
             try
             {
                 _logger.LogInformation($"Entered method {nameof(GetAllSessions)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                var sessionsList = await dbContext.Sessions.ToListAsync();
+                var sessionsList = await dbContext.Sessions.ToListAsync(cancellationToken);
                 return sessionsList;
             }
             finally
@@ -67,13 +94,13 @@ namespace SessionMan.DataAccess.Repository
             }
         }
 
-        public async Task<Session> GetSessionById(Guid sessionId)
+        public async Task<Session> GetSessionById(Guid sessionId, CancellationToken cancellationToken)
         {
             try
             {
                 _logger.LogInformation($"Entered method {nameof(GetSessionById)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                Session session = await dbContext.Sessions.FirstOrDefaultAsync(s => s.Id == sessionId);
+                Session session = await dbContext.Sessions.FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
                 return session;
             }
             finally
