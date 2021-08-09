@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SessionMan.Api.Extensions;
+using SessionMan.Api.Utilities;
 using SessionMan.DataAccess;
 
 namespace SessionMan.Api
@@ -62,6 +63,8 @@ namespace SessionMan.Api
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseMiddleware<ErrorHandlingMiddlewareUtility>();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

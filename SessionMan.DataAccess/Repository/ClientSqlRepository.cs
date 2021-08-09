@@ -15,30 +15,20 @@ namespace SessionMan.DataAccess.Repository
     public class ClientSqlRepository : IClientRepository
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-        private readonly IMapper _mapper;
-        
-        public ClientSqlRepository(IDbContextFactory<AppDbContext> dbContextFactory, IMapper mapper)
+
+        public ClientSqlRepository(IDbContextFactory<AppDbContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
-            _mapper = mapper;
         }
         
-        public async Task<ActionResult<ClientUpsertOutput>> CreateClient(ClientCreateInput clientCreateInput, CancellationToken cancellationToken)
+        public async Task<Client> CreateClient(Client clientToBeCreated, CancellationToken cancellationToken)
         {
             try
             {
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                var client = _mapper.Map<Client>(clientCreateInput);
-                client.CreatedBy = clientCreateInput.CreatorId == default ? "System" : clientCreateInput.CreatorId.ToString();
-                client.CreatedTime = DateTimeOffset.UtcNow;
-                client.UpdatedBy = clientCreateInput.CreatorId == default ? "System" : clientCreateInput.CreatorId.ToString();
-                client.UpdateTime = client.CreatedTime;
-
-                await dbContext.Clients.AddAsync(client, cancellationToken);
+                await dbContext.Clients.AddAsync(clientToBeCreated, cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
-                var createdClient = _mapper.Map<ClientUpsertOutput>(client);
-
-                return createdClient;
+                return clientToBeCreated;
             }
             catch (Exception exception)
             {
@@ -46,22 +36,14 @@ namespace SessionMan.DataAccess.Repository
             }
         }
 
-        public async Task<ActionResult<ClientUpsertOutput>> UpdateClient(Guid clientId, ClientUpdateInput clientUpdateInput, CancellationToken cancellationToken)
+        public async Task<Client> UpdateClient(Client clientUpdateInput, CancellationToken cancellationToken)
         {
             try
             {
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                Client clientToUpdate = await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
-
-                if (clientToUpdate == null) return new NotFoundResult();
-                Client updatedClientForDb = _mapper.Map(clientUpdateInput, clientToUpdate);
-                updatedClientForDb.UpdatedBy = clientUpdateInput.UpdaterId == default ? "System" : clientUpdateInput.UpdaterId.ToString();
-                updatedClientForDb.UpdateTime = DateTimeOffset.UtcNow;
-
-                dbContext.Clients.Update(updatedClientForDb);
+                dbContext.Clients.Update(clientUpdateInput);
                 await dbContext.SaveChangesAsync(cancellationToken);
-                return _mapper.Map<ClientUpsertOutput>(updatedClientForDb);
-
+                return clientUpdateInput;
             }
             catch (Exception exception)
             {
@@ -69,40 +51,28 @@ namespace SessionMan.DataAccess.Repository
             }
         }
 
-        public async Task<ActionResult> DeleteClient(Guid clientId, CancellationToken cancellationToken)
+        public async Task DeleteClient(Guid clientId, CancellationToken cancellationToken)
         {
             try
             {
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
                 Client clientToDelete = await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
-                if (clientToDelete == null) return new NotFoundResult();
+                if (clientToDelete == null) return;
                 dbContext.Clients.Remove(clientToDelete);
-                int result = await dbContext.SaveChangesAsync(cancellationToken);
-                if (result > 0)
-                {
-                    return new NoContentResult();
-                }
-                else
-                {
-                    return new ConflictResult();
-                }
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception exception)
+            finally
             {
-                return new ConflictResult();
             }
         }
 
-        public async Task<ActionResult<List<ClientRecord>>> GetAllClients(CancellationToken cancellationToken)
+        public async Task<List<Client>> GetAllClients(CancellationToken cancellationToken)
         {
             try
             {
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
                 var clientsFromDb = await dbContext.Clients.ToListAsync(cancellationToken: cancellationToken);
-
-                var clientRecords = _mapper.Map<List<ClientRecord>>(clientsFromDb);
-
-                return clientRecords;
+                return clientsFromDb;
             }
             catch (Exception exception)
             {
@@ -110,19 +80,14 @@ namespace SessionMan.DataAccess.Repository
             }
         }
 
-        public async Task<ActionResult<ClientRecord>> GetClientById(Guid clientId, CancellationToken cancellationToken)
+        public async Task<Client> GetClientById(Guid clientId, CancellationToken cancellationToken)
         {
             try
             {
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
                 Client clientFromDb = await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
 
-                if (clientFromDb == null)
-                {
-                }
-                var clientRecord = _mapper.Map<ClientRecord>(clientFromDb);
-
-                return clientRecord;
+                return clientFromDb;
             }
             catch (Exception exception)
             {
@@ -130,7 +95,7 @@ namespace SessionMan.DataAccess.Repository
             }
         }
 
-        public async Task<ActionResult<ClientRecord>> IsClientUnique(string email, Guid clientId, CancellationToken cancellationToken)
+        public async Task<bool> IsClientUnique(string email, Guid clientId, CancellationToken cancellationToken)
         {
             try
             {
@@ -141,7 +106,7 @@ namespace SessionMan.DataAccess.Repository
                         await dbContext.Clients.FirstOrDefaultAsync(c =>
                             string.Equals(c.EmailAddress, email, StringComparison.CurrentCultureIgnoreCase), cancellationToken: cancellationToken);
 
-                    return _mapper.Map<ClientRecord>(clientFromDb);
+                    return clientFromDb != null;
                 }
                 else
                 {
@@ -150,26 +115,26 @@ namespace SessionMan.DataAccess.Repository
                             string.Equals(c.EmailAddress, email, StringComparison.CurrentCultureIgnoreCase)
                             && c.Id != clientId, cancellationToken: cancellationToken);
 
-                    return _mapper.Map<ClientRecord>(clientFromDb);
+                    return clientFromDb != null;
                 }
 
             }
             catch (Exception exception)
             {
-                return null;
+                return false;
             }
         }
 
-        public async Task<bool> IsClientExisting(Guid clientId, CancellationToken cancellationToken)
+        public async Task<Client> IsClientExisting(Guid clientId, CancellationToken cancellationToken)
         {
             try
             {
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                return await dbContext.Clients.AnyAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
+                return await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
             }
             catch (Exception exception)
             {
-                return false;
+                return null;
             }
         }
     }

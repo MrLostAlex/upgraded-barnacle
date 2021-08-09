@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,20 +12,23 @@ using SessionMan.DataAccess.Repository.IRepository;
 
 namespace SessionMan.DataAccess.Handlers
 {
-    public class GetClientListHandler : IRequestHandler<GetClientListQuery, ActionResult<List<ClientRecord>>>
+    public class GetClientListHandler : IRequestHandler<GetClientListQuery, List<ClientRecord>>
     {
         private readonly IClientRepository _clientRepository;
+        private readonly IMapper _mapper;
 
-        public GetClientListHandler(IClientRepository clientRepository)
+        public GetClientListHandler(IClientRepository clientRepository, IMapper mapper)
         {
             _clientRepository = clientRepository;
+            _mapper = mapper;
         }
         
-        public async Task<ActionResult<List<ClientRecord>>> Handle(GetClientListQuery request, CancellationToken cancellationToken)
+        public async Task<List<ClientRecord>> Handle(GetClientListQuery request, CancellationToken cancellationToken)
         {
-            var result = await _clientRepository.GetAllClients(cancellationToken);
+            var clientList = await _clientRepository.GetAllClients(cancellationToken);
+            var clientRecords = _mapper.Map<List<ClientRecord>>(clientList);
 
-            return result.Value.Count > 0 ? result : new NotFoundResult();
+            return clientRecords;
         }
     }
 }

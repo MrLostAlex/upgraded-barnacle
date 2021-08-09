@@ -1,6 +1,6 @@
-﻿namespace SessionMan.DataAccess.Models
+﻿namespace SessionMan.DataAccess.DataTransfer
 {
-    public class Error
+    public record ErrorBaseRecord
     {
         public string Title { get; set; }
         public int StatusCode { get; set; }

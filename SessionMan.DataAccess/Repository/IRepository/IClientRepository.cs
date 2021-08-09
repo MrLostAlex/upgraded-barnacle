@@ -4,17 +4,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SessionMan.DataAccess.DataTransfer.Client;
+using SessionMan.DataAccess.Models;
 
 namespace SessionMan.DataAccess.Repository.IRepository
 {
     public interface IClientRepository
     {
-        Task<ActionResult<ClientUpsertOutput>> CreateClient(ClientCreateInput clientCreateInput, CancellationToken cancellationToken);
-        Task<ActionResult<ClientUpsertOutput>> UpdateClient(Guid clientId, ClientUpdateInput clientUpdateInput, CancellationToken cancellationToken);
-        Task<ActionResult> DeleteClient(Guid clientId, CancellationToken cancellationToken);
-        Task<ActionResult<List<ClientRecord>>> GetAllClients(CancellationToken cancellationToken);
-        Task<ActionResult<ClientRecord>> GetClientById(Guid clientId, CancellationToken cancellationToken);
-        Task<ActionResult<ClientRecord>> IsClientUnique(string email, Guid clientId, CancellationToken cancellationToken);
-        Task<bool> IsClientExisting(Guid clientId, CancellationToken cancellationToken);
+        Task<Client> CreateClient(Client clientCreateInput, CancellationToken cancellationToken);
+        Task<Client> UpdateClient(Client clientUpdateInput, CancellationToken cancellationToken);
+        Task DeleteClient(Guid clientId, CancellationToken cancellationToken);
+        Task<List<Client>> GetAllClients(CancellationToken cancellationToken);
+        Task<Client> GetClientById(Guid clientId, CancellationToken cancellationToken);
+        Task<bool> IsClientUnique(string email, Guid clientId, CancellationToken cancellationToken);
+        Task<Client> IsClientExisting(Guid clientId, CancellationToken cancellationToken);
     }
 }

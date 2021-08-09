@@ -4,5 +4,5 @@ using SessionMan.DataAccess.DataTransfer.Client;
 
 namespace SessionMan.DataAccess.Commands
 {
-    public record CreateClientCommand(ClientCreateInput ClientCreateInput) : IRequest<ActionResult<ClientUpsertOutput>>;
+    public record CreateClientCommand(ClientCreateInput ClientCreateInput) : IRequest<ClientUpsertOutput>;
 }

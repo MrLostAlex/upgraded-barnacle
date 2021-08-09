@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace SessionMan.DataAccess.DataTransfer.Session
 {
@@ -13,5 +14,8 @@ namespace SessionMan.DataAccess.DataTransfer.Session
         public DateTimeOffset StartDateTime { get; set; }
 
         public DateTimeOffset EndDateTime { get; set; }
+        
+        [JsonIgnore]
+        public ErrorBaseRecord ErrorBaseRecord { get; set; }
     }
 }

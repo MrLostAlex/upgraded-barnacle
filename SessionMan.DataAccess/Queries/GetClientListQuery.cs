@@ -5,5 +5,5 @@ using SessionMan.DataAccess.DataTransfer.Client;
 
 namespace SessionMan.DataAccess.Queries
 {
-    public record GetClientListQuery() : IRequest<ActionResult<List<ClientRecord>>>;
+    public record GetClientListQuery() : IRequest<List<ClientRecord>>;
 }
