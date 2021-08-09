@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
@@ -7,6 +8,7 @@ using SessionMan.DataAccess.DataTransfer.Client;
 using SessionMan.DataAccess.Models;
 using SessionMan.DataAccess.Queries;
 using SessionMan.DataAccess.Repository.IRepository;
+using SessionMan.Shared.Helpers;
 
 namespace SessionMan.DataAccess.Handlers
 {
@@ -25,6 +27,9 @@ namespace SessionMan.DataAccess.Handlers
         {
             Client client = await _clientRepository.GetClientById(request.Id, cancellationToken);
             var clientRecord = _mapper.Map<ClientRecord>(client);
+            if (clientRecord == null)
+                throw new InvalidDataStateException("Client Not Found",
+                    $"The client with specified if {request.Id} was not found.");
             return clientRecord;
         }
     }

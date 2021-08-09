@@ -27,7 +27,6 @@ namespace SessionMan.DataAccess.Handlers
         {
             var clientList = await _clientRepository.GetAllClients(cancellationToken);
             var clientRecords = _mapper.Map<List<ClientRecord>>(clientList);
-
             return clientRecords;
         }
     }

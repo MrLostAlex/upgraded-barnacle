@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionMan.Api", "SessionMa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionMan.DataAccess", "SessionMan.DataAccess\SessionMan.DataAccess.csproj", "{7195F26C-E4CD-481C-8F7E-128CCE194EF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionMan.Shared", "SessionMan.Shared\SessionMan.Shared.csproj", "{E7FDB107-9909-4BAF-8202-00A486059268}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{7195F26C-E4CD-481C-8F7E-128CCE194EF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7195F26C-E4CD-481C-8F7E-128CCE194EF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7195F26C-E4CD-481C-8F7E-128CCE194EF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7FDB107-9909-4BAF-8202-00A486059268}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7FDB107-9909-4BAF-8202-00A486059268}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7FDB107-9909-4BAF-8202-00A486059268}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7FDB107-9909-4BAF-8202-00A486059268}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

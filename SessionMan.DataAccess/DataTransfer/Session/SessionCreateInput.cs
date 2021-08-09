@@ -2,7 +2,7 @@
 
 namespace SessionMan.DataAccess.DataTransfer.Session
 {
-    public record SessionCreateInput : AuditBaseRecord
+    public record SessionCreateInput
     {
         public string Title { get; set; }
 

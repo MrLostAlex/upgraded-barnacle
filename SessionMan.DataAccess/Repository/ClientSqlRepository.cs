@@ -2,37 +2,40 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SessionMan.DataAccess.Data;
-using SessionMan.DataAccess.DataTransfer.Client;
 using SessionMan.DataAccess.Models;
 using SessionMan.DataAccess.Repository.IRepository;
+using SessionMan.Shared.Helpers;
 
 namespace SessionMan.DataAccess.Repository
 {
     public class ClientSqlRepository : IClientRepository
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+        private readonly ILogger<ClientSqlRepository> _logger;
 
-        public ClientSqlRepository(IDbContextFactory<AppDbContext> dbContextFactory)
+        public ClientSqlRepository(IDbContextFactory<AppDbContext> dbContextFactory,
+            ILogger<ClientSqlRepository> logger)
         {
             _dbContextFactory = dbContextFactory;
+            _logger = logger;
         }
-        
+
         public async Task<Client> CreateClient(Client clientToBeCreated, CancellationToken cancellationToken)
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(CreateClient)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
                 await dbContext.Clients.AddAsync(clientToBeCreated, cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return clientToBeCreated;
             }
-            catch (Exception exception)
+            finally
             {
-                return null;
+                _logger.LogInformation($"Exit method {nameof(CreateClient)}.");
             }
         }
 
@@ -40,14 +43,15 @@ namespace SessionMan.DataAccess.Repository
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(UpdateClient)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
                 dbContext.Clients.Update(clientUpdateInput);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 return clientUpdateInput;
             }
-            catch (Exception exception)
+            finally
             {
-                return null;
+                _logger.LogInformation($"Exit method {nameof(UpdateClient)}.");
             }
         }
 
@@ -55,14 +59,18 @@ namespace SessionMan.DataAccess.Repository
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(DeleteClient)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                Client clientToDelete = await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
-                if (clientToDelete == null) return;
+                Client clientToDelete =
+                    await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken);
+                if (clientToDelete == null)
+                    throw new BadRequestException("Delete Failed",$"Unable to delete client. Client Id {clientId} not found.");
                 dbContext.Clients.Remove(clientToDelete);
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
             finally
             {
+                _logger.LogInformation($"Exit method {nameof(DeleteClient)}.");
             }
         }
 
@@ -70,13 +78,14 @@ namespace SessionMan.DataAccess.Repository
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(GetAllClients)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                var clientsFromDb = await dbContext.Clients.ToListAsync(cancellationToken: cancellationToken);
+                var clientsFromDb = await dbContext.Clients.ToListAsync(cancellationToken);
                 return clientsFromDb;
             }
-            catch (Exception exception)
+            finally
             {
-                return null;
+                _logger.LogInformation($"Exit method {nameof(GetAllClients)}.");
             }
         }
 
@@ -84,14 +93,17 @@ namespace SessionMan.DataAccess.Repository
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(GetClientById)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                Client clientFromDb = await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
+                Client clientFromDb =
+                    await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId,
+                        cancellationToken);
 
                 return clientFromDb;
             }
-            catch (Exception exception)
+            finally
             {
-                return null;
+                _logger.LogInformation($"Exit method {nameof(GetClientById)}.");
             }
         }
 
@@ -99,12 +111,14 @@ namespace SessionMan.DataAccess.Repository
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(IsClientUnique)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
                 if (clientId == default)
                 {
                     Client clientFromDb =
                         await dbContext.Clients.FirstOrDefaultAsync(c =>
-                            string.Equals(c.EmailAddress, email, StringComparison.CurrentCultureIgnoreCase), cancellationToken: cancellationToken);
+                                string.Equals(c.EmailAddress, email, StringComparison.CurrentCultureIgnoreCase),
+                            cancellationToken);
 
                     return clientFromDb != null;
                 }
@@ -113,15 +127,14 @@ namespace SessionMan.DataAccess.Repository
                     Client clientFromDb =
                         await dbContext.Clients.FirstOrDefaultAsync(c =>
                             string.Equals(c.EmailAddress, email, StringComparison.CurrentCultureIgnoreCase)
-                            && c.Id != clientId, cancellationToken: cancellationToken);
+                            && c.Id != clientId, cancellationToken);
 
                     return clientFromDb != null;
                 }
-
             }
-            catch (Exception exception)
+            finally
             {
-                return false;
+                _logger.LogInformation($"Exit method {nameof(IsClientUnique)}.");
             }
         }
 
@@ -129,12 +142,14 @@ namespace SessionMan.DataAccess.Repository
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(IsClientExisting)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                return await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken: cancellationToken);
+                return await dbContext.Clients.FirstOrDefaultAsync(c => c.Id == clientId,
+                    cancellationToken);
             }
-            catch (Exception exception)
+            finally
             {
-                return null;
+                _logger.LogInformation($"Exit method {nameof(IsClientExisting)}.");
             }
         }
     }

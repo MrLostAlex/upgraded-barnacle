@@ -29,6 +29,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SessionMan.DataAccess\SessionMan.DataAccess.csproj" />
+      <ProjectReference Include="..\SessionMan.Shared\SessionMan.Shared.csproj" />
     </ItemGroup>
 
 </Project>

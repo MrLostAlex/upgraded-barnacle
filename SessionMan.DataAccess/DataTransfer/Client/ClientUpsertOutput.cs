@@ -15,8 +15,5 @@ namespace SessionMan.DataAccess.DataTransfer.Client
         public string EmailAddress { get; set; }
         
         public string ContactNumber { get; set; }
-
-        [JsonIgnore]
-        public ErrorBaseRecord ErrorBaseRecord { get; set; }
     }
 }

@@ -15,7 +15,5 @@ namespace SessionMan.DataAccess.DataTransfer.Session
 
         public DateTimeOffset EndDateTime { get; set; }
         
-        [JsonIgnore]
-        public ErrorBaseRecord ErrorBaseRecord { get; set; }
     }
 }

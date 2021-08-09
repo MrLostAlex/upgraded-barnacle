@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SessionMan.DataAccess.DataTransfer;
+using SessionMan.Shared.Helpers;
+using SessionMan.Shared.Models;
 
 namespace SessionMan.Api.Utilities
 {
     public class ErrorHandlingMiddlewareUtility
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ErrorHandlingMiddlewareUtility> _logger;
 
-        public ErrorHandlingMiddlewareUtility(RequestDelegate next)
+        public ErrorHandlingMiddlewareUtility(RequestDelegate next, ILogger<ErrorHandlingMiddlewareUtility> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -27,32 +32,29 @@ namespace SessionMan.Api.Utilities
             {
                 HttpResponse response = context.Response;
                 response.ContentType = "application/json";
-                ErrorBaseRecord errorRecord;
+                ErrorRecord errorRecord;
+                _logger.LogError($"An exception occured. Exception Message: {error.Message}");
+                _logger.LogDebug(JsonConvert.SerializeObject(error));
                 switch(error)
                 {
-                    // case AppException e:
-                    //     // custom application error
-                    //     response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    //     break;
-                    case KeyNotFoundException keyNotFoundException:
-                        // not found error
+                    case BadRequestException badRequestException:
+                        // custom application error
+                        response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        errorRecord = new ErrorRecord("Bad Request", response.StatusCode, badRequestException.Message);
+                        break;
+                    case InvalidDataStateException invalidDataStateException:
+                        // custom application error
                         response.StatusCode = (int)HttpStatusCode.NotFound;
-                        errorRecord = new ErrorBaseRecord()
-                        {
-                            Title = "Key Not Found Exception",
-                            ErrorMessage = keyNotFoundException.Message,
-                            StatusCode = StatusCodes.Status404NotFound
-                        };
+                        errorRecord = new ErrorRecord("Bad Request", response.StatusCode, invalidDataStateException.Message);
+                        break;
+                    case TaskCanceledException taskCancelled:
+                        response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        errorRecord = new ErrorRecord("Request Cancelled", response.StatusCode, "The request was cancelled by the requester.");
                         break;
                     default:
                         // unhandled error
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        errorRecord = new ErrorBaseRecord()
-                        {
-                            Title = "Unexpected Error Occured",
-                            ErrorMessage = error.Message,
-                            StatusCode = StatusCodes.Status500InternalServerError
-                        };
+                        errorRecord = new ErrorRecord("Unexpected Error Occured", response.StatusCode, "The application encountered an unexpected error. Please contact the administrator.");
                         break;
                 }
 

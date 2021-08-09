@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SessionMan.DataAccess.Data;
 using SessionMan.DataAccess.DataTransfer.Session;
 using SessionMan.DataAccess.Models;
@@ -15,60 +16,70 @@ namespace SessionMan.DataAccess.Repository
     {
         private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
         private readonly IMapper _mapper;
+        private readonly ILogger<SessionSqlRepository> _logger;
 
-        public SessionSqlRepository(IDbContextFactory<AppDbContext> dbContextFactory, IMapper mapper)
+        public SessionSqlRepository(IDbContextFactory<AppDbContext> dbContextFactory, IMapper mapper,
+            ILogger<SessionSqlRepository> logger)
         {
             _dbContextFactory = dbContextFactory;
             _mapper = mapper;
+            _logger = logger;
         }
-        
-        public async Task<ActionResult<SessionUpsertOutput>> CreateSession(SessionCreateInput sessionCreateInput)
+
+        public async Task<Session> CreateSession(Session sessionCreate)
         {
             try
             {
+                _logger.LogInformation($"Entered method {nameof(CreateSession)}.");
                 await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
-                var session = _mapper.Map<Session>(sessionCreateInput);
-                session.CreatedTime = DateTimeOffset.UtcNow;
-                session.UpdateTime = session.CreatedTime;
-                session.CreatedBy = sessionCreateInput.CreatorId == default ? "System" : sessionCreateInput.CreatorId.ToString();
-                session.UpdatedBy = session.CreatedBy;
-
-                await dbContext.Sessions.AddAsync(session);
+                await dbContext.Sessions.AddAsync(sessionCreate);
                 await dbContext.SaveChangesAsync();
-
-                var createdSession = _mapper.Map<SessionUpsertOutput>(session);
-
-                return createdSession;
+                return sessionCreate;
             }
-            catch (Exception exception)
+            finally
             {
-                return null;
+                _logger.LogInformation($"Exit method {nameof(CreateSession)}.");
             }
         }
 
-        public async Task<ActionResult<SessionUpsertOutput>> UpdateSession(Guid sessionId, SessionUpdateInput sessionUpdateInput)
+        public async Task<Session> UpdateSession(Session sessionUpdate)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ActionResult> DeleteSession(Guid sessionId)
+        public async Task DeleteSession(Guid sessionId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ActionResult<List<SessionRecord>>> GetAllSession()
+        public async Task<List<Session>> GetAllSessions()
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Entered method {nameof(GetAllSessions)}.");
+                await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
+                var sessionsList = await dbContext.Sessions.ToListAsync();
+                return sessionsList;
+            }
+            finally
+            {
+                _logger.LogInformation($"Exit method {nameof(GetAllSessions)}.");
+            }
         }
 
-        public async Task<ActionResult<SessionRecord>> GetSessionById(Guid sessionId)
+        public async Task<Session> GetSessionById(Guid sessionId)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> IsSessionExisting(Guid sessionId)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Entered method {nameof(GetSessionById)}.");
+                await using AppDbContext dbContext = _dbContextFactory.CreateDbContext();
+                Session session = await dbContext.Sessions.FirstOrDefaultAsync(s => s.Id == sessionId);
+                return session;
+            }
+            finally
+            {
+                _logger.LogInformation($"Exit method {nameof(GetSessionById)}.");
+            }
         }
     }
 }
